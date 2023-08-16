@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
-import { HStack, Heading, NativeBaseProvider, VStack, Button, Text } from 'native-base';
-import { SafeAreaView, StyleSheet, Dimensions } from 'react-native';
+import { HStack, Heading, NativeBaseProvider, VStack, Button, Text, Stack } from 'native-base';
+import { SafeAreaView, StyleSheet, Dimensions, Platform } from 'react-native';
 import { useEffect } from 'react';
 
-const { width } = Dimensions.get("window")
+const { width, height } = Dimensions.get("screen")
 export default function App() {
 	const ref = useRef()
 	const [currentValue, setCurrentValue] = useState("")
@@ -120,6 +120,7 @@ export default function App() {
 
 	const onPress = (value) => {
 		const lastValue = currentValue.slice(-3)
+		console.log(Platform.OS)
 
 		switch (value) {
 			case "C":
@@ -138,7 +139,6 @@ export default function App() {
 			case "+":
 			case "/":
 			case "*":
-
 				if (lastValue.trim() !== "-" && lastValue.trim() !== "+" && lastValue.trim() !== "/" && lastValue.trim() !== value) {
 					setCurrentValue(currentValue + ` ${value} `)
 				}
@@ -165,62 +165,62 @@ export default function App() {
 		}
 	}
 
-	const handleTextLayout = (e) => {
-		// console.log({
-		// 	width: e.nativeEvent.layout.width / 30,
-		// 	result: parseInt(width / 34 - 2),
-		// 	max: e.nativeEvent.layout.width / 30 >= parseInt(width / 34 - 2),
-		// 	screen: width
-		// })
-	}
-
 	return (
 		<NativeBaseProvider>
 			<SafeAreaView>
-				<VStack h="100%" p={"20px"} pb={"40px"} pt={"80px"} justifyContent={"flex-end"}>
-					<VStack>
-						<HStack pr={"20px"} pl={"20px"} alignItems="center" justifyContent="flex-end">
-							<Heading onLayout={handleTextLayout} color={"gray.600"} fontSize={"45px"} fontWeight={"bold"}>{!result ? "0" : result}</Heading>
+				<Stack style={styles.container}>
+					<VStack style={Platform.OS === "web" ? styles.shadow : {}} pb={"40px"} pt={"80px"} justifyContent={"flex-end"}>
+						<VStack pr={"20px"}>
+							<HStack  pl={"20px"} justifyContent="flex-end">
+								<Heading color={"gray.600"} fontSize={"45px"} fontWeight={"bold"}>{!result ? "0" : result}</Heading>
+							</HStack>
+							<HStack h={"40px"} alignItems="center" justifyContent="flex-end">
+								<Heading p={"10px"} color={"gray.400"} fontSize={"20px"} alignItems="center" fontWeight={"bold"}>{currentValue}</Heading>
+							</HStack>
+						</VStack>
+						<HStack p={"10px"} w={Platform.OS === "web" ? "360px" : width} mt={"50px"} flexWrap="wrap" justifyContent={"space-between"}>
+							{Array(19).fill().map((_, key) => (
+								<Button onPress={() => onPress(buttonValue(key))} _hover={{ background: "#FFCB89" }} _pressed={{ background: buttonColor(key).pressed }} bg={buttonColor(key).bg} fontSize={"40px"} style={key === 18 ? styles.buttonsEqual : styles.buttons}>
+									<Text pt={key === 7 && "10px"} pb={key === 17 && "10px"} fontSize={"25px"} color={buttonColor(key).color} fontWeight={"bold"}>{buttonValue(key)}</Text>
+								</Button>
+							))}
 						</HStack>
-						<HStack alignItems="center" justifyContent="flex-end">
-							<Heading p={"10px"} color={"gray.400"} fontSize={"20px"} alignItems="center" fontWeight={"bold"}>{currentValue}</Heading>
-						</HStack>
-						{/* <Heading p={"10px"} color={"gray.400"} fontSize={"20px"} alignItems="center" fontWeight={"bold"}>{currentValue}</Heading> */}
 					</VStack>
-					<HStack mt={"50px"} flexWrap justifyContent={"space-between"}>
-						{Array(19).fill().map((_, key) => (
-							<Button onPress={() => onPress(buttonValue(key))} _pressed={{ background: buttonColor(key).pressed }} key={key} bg={buttonColor(key).bg} fontSize={"40px"} style={key === 18 ? styles.buttonsEqual : styles.buttons}>
-								<Text pt={key === 7 && "10px"} pb={key === 17 && "10px"} fontSize={"25px"} color={buttonColor(key).color} fontWeight={"bold"}>{buttonValue(key)}</Text>
-							</Button>
-						))}
-					</HStack>
-				</VStack>
+
+				</Stack>
 			</SafeAreaView>
 		</NativeBaseProvider>
 	);
 }
 
 const styles = StyleSheet.create({
+	shadow: {
+		shadowColor: '#171717',
+		shadowOffset: { width: 0, height: 0 },
+		shadowOpacity: 0.2,
+		shadowRadius: 3,
+		borderRadius: 30,
+		width: Platform.OS === "web" ? "360px" : width,
+	},
 	container: {
-		flex: 1,
-		backgroundColor: '#fff',
+		width,
+		height,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
 	buttons: {
-		width: width / 4 - 30,
-		height: width / 4 - 30,
+		width: Platform.OS === "web" ? 360 / 4 - 30 : width / 4 - 30,
+		height: Platform.OS === "web" ? 360 / 4 - 30 : width / 4 - 30,
 		borderRadius: 100,
 		margin: 10,
 		fontSize: 28,
 
 	},
 	buttonsEqual: {
-		width: (width / 4 - 30) * 2,
-		height: width / 4 - 40,
+		width: Platform.OS === "web" ? (360 / 4 - 30) * 2 : (width / 4 - 30) * 2,
+		height: Platform.OS === "web" ? 360 / 4 - 40 : width / 4 - 40,
 		borderRadius: 100,
 		margin: 20,
 		marginBottom: 15,
-
 	}
-});
+})
